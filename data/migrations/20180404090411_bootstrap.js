@@ -4,6 +4,7 @@ exports.up = function(knex) {
       users.increments();
       users
         .string('name')
+
         .notNullable()
         .unique();
     })

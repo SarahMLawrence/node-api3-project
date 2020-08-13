@@ -1,8 +1,10 @@
 const express = require("express");
 const users = require("./userDb");
+const posts = require("../posts/postDb");
+const e = require("express");
 const router = express.Router();
 
-router.post("/users", validateUserId, (req, res) => {
+router.post("/users", validateUser, (req, res) => {
   users
     .insert(req.body)
     .then((user) => {
@@ -14,21 +16,24 @@ router.post("/users", validateUserId, (req, res) => {
     });
 });
 
-//NOT WORKING YET
-
-// router.post("/users/:id/posts",validateUserId, validatePost, (req, res) => {
-//   users
-//     .insert(req.post)
-//     .then(post => {
-//       res.status(201).json(post);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res
-//         .status(500)
-//         .json({ message: "Could not post a new comment for user" });
-//     });
-// });
+router.post("/users/:id/posts", validatePost, validateUserId, (req, res) => {
+  let id = req.params.id;
+  let post = {
+    text: req.body.text,
+    user_id: id,
+  };
+  posts
+    .insert(post)
+    .then((comment) => {
+      res.status(201).json(comment);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({
+        error: "There was an error while saving the post to the database",
+      });
+    });
+});
 
 //WORKING - GET USER
 router.get("/users", (req, res) => {
@@ -78,11 +83,11 @@ router.delete("/users/:id", validateUserId, (req, res) => {
 });
 
 // WORKING
-router.put("/users/:id", validateUserId, validateUser, (req, res) => {
+router.put("/users/:id", validateUser, validateUserId, (req, res) => {
   users
-    .update(req.user.id, req.body)
-    .then((u) => {
-      res.status(200).json(u);
+    .update(req.params.id, req.body)
+    .then((user) => {
+      res.status(200).json(user);
     })
     .catch((err) => {
       console.log(err);
@@ -99,24 +104,24 @@ router.put("/users/:id", validateUserId, validateUser, (req, res) => {
 //  a user id parameter                                                 //
 //----------------------------------------------------------------------//
 function validateUserId(req, res, next) {
-  const id = req.params.id;
-
   users
-    .getById(id)
-    .then((u) => {
-      if (u) {
-        req.user = u;
+    .getById(req.params.id)
+    .then((user) => {
+      if (user) {
+        // attach the user data to the request
+        // so we can access it later
+        req.user = user;
         next();
       } else {
         res.status(400).json({
-          message: "invalid user id",
+          message: "User not found",
         });
       }
     })
     .catch((error) => {
       console.log(error);
       res.status(500).json({
-        error: "could not validate id",
+        message: "Error retrieving the user",
       });
     });
 }
@@ -138,20 +143,12 @@ function validateUser(req, res, next) {
   next();
 }
 
-//----------------------------------------------------------------------//
-//  validatePost validates the body on a request to create a new post   //
-//----------------------------------------------------------------------//
 function validatePost(req, res, next) {
-  // if (!req.body) {
-  //   res.status(400).json({
-  //     message: "missing post data",
-  //   });
-  // } else if (!req.body.name) {
-  //   res.status(400).json({
-  //     message: "missing required text field",
-  //   });
-  // }
-  // next();
+  if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: "missing post data" }).end();
+  } else {
+    next();
+  }
 }
 
 module.exports = router;
