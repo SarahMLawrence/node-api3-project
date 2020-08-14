@@ -3,6 +3,7 @@ import { Route, NavLink } from "react-router-dom";
 import { Axios } from "./utils/Axios";
 import UserList from "./components/UserList";
 import PostList from "./components/PostList";
+import AddUser from "./components/AddUser";
 import "./App.css";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <NavLink to="/user-list">User List</NavLink>
           <NavLink to="/post-list">Post List</NavLink>
           <NavLink to="/user-form">Add User</NavLink>
+     
         </div>
       </nav>
 
@@ -52,6 +54,14 @@ function App() {
         path="/post-list"
         render={(props) => <PostList {...props} postList={postList} />}
       />
+
+      <Route
+        exact
+        path="/user-form"
+        render={(props) => <AddUser />}
+      />
+
+
     </div>
   );
 }

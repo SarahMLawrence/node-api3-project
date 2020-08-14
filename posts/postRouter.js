@@ -2,27 +2,27 @@ const express = require("express");
 const Posts = require("./postDb.js");
 const router = express.Router();
 
-// CREATE A NEW POST
-router.post("/posts", (req, res) => {
-  Posts.insert(req.body)
-    .then((post) => {
-      if (!req.body.text) {
-        res.status(400).json({
-          error: "Please provide title and contents for the post",
-        });
-      } else {
-        res.status(201).json(post);
-      }
-    })
-    .catch((error) => {
-      // just log this error and send back a generic error response,
-      // since we're not exactly sure what went wrong
-      console.log(error);
-      res.status(500).json({
-        error: "There was an error while saving the post to the database",
-      });
-    });
-});
+// // CREATE A NEW POST
+// router.post("/posts", (req, res) => {
+//   Posts.insert(req.body)
+//     .then((post) => {
+//       if (!req.body.text) {
+//         res.status(400).json({
+//           error: "Please provide title and contents for the post",
+//         });
+//       } else {
+//         res.status(201).json(post);
+//       }
+//     })
+//     .catch((error) => {
+//       // just log this error and send back a generic error response,
+//       // since we're not exactly sure what went wrong
+//       console.log(error);
+//       res.status(500).json({
+//         error: "There was an error while saving the post to the database",
+//       });
+//     });
+// });
 
 
 // WORKING
